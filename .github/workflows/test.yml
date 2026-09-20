@@ -3,6 +3,7 @@ name: Test Homebrew installation
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -15,8 +16,12 @@ jobs:
     env:
       HOMEBREW_NO_INSTALL_CLEANUP: 1
     steps:
-      - name: Install published formula
-        run: brew install mightymorgs/tap/remotefs
+      - uses: actions/checkout@v4
+      - name: Install formula from checkout
+        run: |
+          brew tap mightymorgs/tap
+          cp Formula/remotefs.rb "$(brew --repository mightymorgs/tap)/Formula/remotefs.rb"
+          brew install --build-from-source mightymorgs/tap/remotefs
       - name: Test installed formula
         run: |
           brew test mightymorgs/tap/remotefs
